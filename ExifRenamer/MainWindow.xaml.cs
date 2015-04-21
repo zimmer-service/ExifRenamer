@@ -22,17 +22,17 @@ namespace ExifRenamer
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Controller ctrl;
+        private ExifRenamerController exifRenamer;
 
         public MainWindow()
         {
             InitializeComponent();
-            ctrl = new Controller();
+            exifRenamer = new ExifRenamerController();
         }
 
         private void BtnSearchDir_Click(object sender, RoutedEventArgs e)
         {
-            txtDir.Text = ctrl.SearchDirectory();
+            txtDir.Text = exifRenamer.SearchDirectory();
         }
 
         private void BtnGo_Click(object sender, RoutedEventArgs e)
@@ -40,7 +40,16 @@ namespace ExifRenamer
             if (!CheckUserInput())
                 return;
 
-            ctrl.RenameFiles(txtDir.Text, txtFormat.Text, txtIndex.Text);
+            Cursor curCursor = this.Cursor;
+            this.Cursor = Cursors.Wait;
+            try
+            {
+                exifRenamer.RenameFiles(txtDir.Text, txtFileExt.Text, txtFormat.Text, txtIndex.Text);
+            }
+            finally
+            {
+                this.Cursor = curCursor;
+            }
         }
 
         private bool CheckUserInput()
@@ -73,6 +82,12 @@ namespace ExifRenamer
             if (!int.TryParse(txtIndex.Text, out foo))
             {
                 MessageBox.Show("Die Indexlänge muss als Ganzzahl angegeben werden!", "Die Indexlänge muss als Ganzzahl angegeben werden!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(txtFileExt.Text))
+            {
+                MessageBox.Show("Es wurde kein Dateityp angegeben!", "Es wurde kein Dateityp angegeben!", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
