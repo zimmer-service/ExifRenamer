@@ -13,37 +13,24 @@ namespace ExifRenamer
 {
     public class Controller
     {
-        private MainWindow mainWindow;
 
-        public Controller(MainWindow mainWindow)
-        {
-            this.mainWindow = mainWindow;
-        }
+        public Controller()        { }
 
-        internal void SearchDirectory()
+        internal string SearchDirectory()
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.CheckPathExists = true;
 
             bool? res = ofd.ShowDialog();
             if (!res.HasValue || !res.Value)
-                return;
+                return "";
 
-            if (ofd.FileName.EndsWith(Path.DirectorySeparatorChar.ToString()))
-            {
-                mainWindow.txtDir.Text = ofd.FileName;
-                return;
-            }
-
-            mainWindow.txtDir.Text = Path.GetDirectoryName(ofd.FileName);
+            return Path.GetDirectoryName(ofd.FileName);
         }
 
-        internal void RenameFiles()
+        internal void RenameFiles(string dir, string fileNameTemplate, string indexLength)
         {
-            if (!CheckUserInput())
-                return;
-
-            string[] files = Directory.GetFiles(mainWindow.txtDir.Text, "*.jpg");
+            string[] files = Directory.GetFiles(dir, "*.jpg");
             Bitmap bm;
             Dictionary<string, DateTime> fileDT = new Dictionary<string, DateTime>();
             string sdt;
@@ -67,34 +54,6 @@ namespace ExifRenamer
         {
 
             return DateTime.Now;
-        }
-
-        private bool CheckUserInput()
-        {
-            if (string.IsNullOrEmpty(mainWindow.txtDir.Text))
-            {
-                MessageBox.Show("Es wurde kein Pfad angegeben!", "Es wurde kein Pfad angegeben!", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-
-            if (!Directory.Exists(mainWindow.txtDir.Text))
-            {
-                MessageBox.Show("Der Pfad konnte nicht gefunden werden!", "Der Pfad konnte nicht gefunden werden!", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(mainWindow.txtFormat.Text))
-            {
-                MessageBox.Show("Es wurde kein Format für den Dateinamen angegeben!", "Es wurde kein Format für den Dateinamen angegeben!", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(mainWindow.txtIndex.Text))
-            {
-                MessageBox.Show("Die Indexlänge wurde nicht angegeben!", "Die Indexlänge wurde nicht angegeben!", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-            return true;
         }
     }
 }

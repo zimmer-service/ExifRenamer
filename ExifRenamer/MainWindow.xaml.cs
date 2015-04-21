@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,24 +24,59 @@ namespace ExifRenamer
     {
         private Controller ctrl;
 
-        public TextBox TxtDir { get { return this.txtDir; } }
-        public TextBox TxtFormat { get { return this.txtFormat; } }
-        public TextBox TxtIndex { get { return this.txtIndex; } }
-
         public MainWindow()
         {
             InitializeComponent();
-            ctrl = new Controller(this);
+            ctrl = new Controller();
         }
 
         private void BtnSearchDir_Click(object sender, RoutedEventArgs e)
         {
-            ctrl.SearchDirectory();
+            txtDir.Text = ctrl.SearchDirectory();
         }
 
         private void BtnGo_Click(object sender, RoutedEventArgs e)
         {
-            ctrl.RenameFiles();
+            if (!CheckUserInput())
+                return;
+
+            ctrl.RenameFiles(txtDir.Text, txtFormat.Text, txtIndex.Text);
+        }
+
+        private bool CheckUserInput()
+        {
+            if (string.IsNullOrEmpty(txtDir.Text))
+            {
+                MessageBox.Show("Es wurde kein Pfad angegeben!", "Es wurde kein Pfad angegeben!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (!Directory.Exists(txtDir.Text))
+            {
+                MessageBox.Show("Der Pfad konnte nicht gefunden werden!", "Der Pfad konnte nicht gefunden werden!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(txtFormat.Text))
+            {
+                MessageBox.Show("Es wurde kein Format für den Dateinamen angegeben!", "Es wurde kein Format für den Dateinamen angegeben!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(txtIndex.Text))
+            {
+                MessageBox.Show("Die Indexlänge wurde nicht angegeben!", "Die Indexlänge wurde nicht angegeben!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            int foo;
+            if (!int.TryParse(txtIndex.Text, out foo))
+            {
+                MessageBox.Show("Die Indexlänge muss als Ganzzahl angegeben werden!", "Die Indexlänge muss als Ganzzahl angegeben werden!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            return true;
         }
     }
 }
